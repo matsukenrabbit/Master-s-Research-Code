@@ -62,7 +62,7 @@ int main (void){
     complex onep = {1, 1}; // (1+i)
     complex onen = {1, -1}; // (1-i)
     //printf("開始！\n");
-    // i, j, k,lは角度。a,b,c,dはラジアン。
+    // i,kは角度。a,bはラジアン。
     //#pragma omp parallel for
     for (int i = 0; i < 360; i++){
         double a = i * M_PI / 180; // ラジアン表記
@@ -75,7 +75,6 @@ int main (void){
         #pragma omp parallel for
         for (int k = 0; k<360; k++){
             double b = k * M_PI / 180; // ラジアン表記
-            complex tmp;
             
             /////////////// r1 (往路) ///////////////
             complex r1x0g0, r1x0g1, r1x1g0, r1x1g1;
@@ -165,7 +164,7 @@ int main (void){
             r4y1g1.real = (cos(b)+cos(a)*sin(b))/8;
             r4y1g1.imag = (-cos(b)+cos(a)*sin(b))/8;
 
-             // 関数定義部分
+            // PAB定義部分
             double f5,f6,f7,f8,l5,l6,l7,l8;
             f5 = Pccn(r3x0g0) + Pccn(r3x0g1);
             f6 = Pccn(r3x1g0) + Pccn(r3x1g1);
@@ -176,23 +175,12 @@ int main (void){
             l7 = Pccn(r4y0g0) + Pccn(r4y0g1);
             l8 = Pccn(r4y1g0) + Pccn(r4y1g1); 
 
-            double f1,f2,f3,f4,l1,l2,l3,l4;
-            f1 = Pccn(r1x0g0) + Pccn(r1x0g1);
-            f2 = Pccn(r1x1g0) + Pccn(r1x1g1);
-            f3 = Pccn(r2x0g0) + Pccn(r2x0g1);
-            f4 = Pccn(r2x1g0) + Pccn(r2x1g1);
-            l1 = Pccn(r1y0g0) + Pccn(r1y0g1);
-            l2 = Pccn(r1y1g0) + Pccn(r1y1g1);
-            l3 = Pccn(r2y0g0) + Pccn(r2y0g1);
-            l4 = Pccn(r2y1g0) + Pccn(r2y1g1);
-
-            double R = f5+f6+f7+f8+l5+l6+l7+l8;
+	    double R = f5+f6+f7+f8+l5+l6+l7+l8;
             double R3 = (f5+f6+l5+l6)/R;
             double R4 = (f7+f8+l7+l8)/R;
+	    double PAB = R3*(f5/(f5+f6)+l6/(l5+l6))/2+R4*(f8/(f7+f8)+l7/(l7+l8))/2;
 
-            double PAB = R3*(f5/(f5+f6) + l6/(l5+l6))/2 + R4*(f8/(f7+f8) + l7/(l7+l8))/2;
-
-            // 関数定義部分
+	    // PE定義部分
             double g1,g2,g3,g4,m1,m2,m3,m4;
             g1 = Pccn(r1x0g0) + Pccn(r1x1g0);
             g2 = Pccn(r1x0g1) + Pccn(r1x1g1);
@@ -206,13 +194,24 @@ int main (void){
             R = g1+g2+g3+g4+m1+m2+m3+m4;
             double R1 = (g1+g2+m1+m2)/R;
             double R2 = (g3+g4+m3+m4)/R;
+	    double PE = R1*(g1/(g1+g2)+m1/(m1+m2))/2+R2*(g4/(g3+g4)+m4/(m3+m4))/2;
 
-            double PE = R1*(g1/(g1+g2) +m1/(m1+m2))/2 + R2*(g4/(g3+g4) + m4/(m3+m4))/2;
-
-            double r1 = m1+m2+g1+g2;
+            // Aliceがr_aを得る確率
+	    double r1 = m1+m2+g1+g2;
             double r2 = m3+m4+g3+g4;
             double r3 = l5+l6+f5+f6;
             double r4 = l7+l8+f7+f8;
+		
+            // IAEとIABの導出
+	    double f1,f2,f3,f4,l1,l2,l3,l4;
+            f1 = Pccn(r1x0g0) + Pccn(r1x0g1);
+            f2 = Pccn(r1x1g0) + Pccn(r1x1g1);
+            f3 = Pccn(r2x0g0) + Pccn(r2x0g1);
+            f4 = Pccn(r2x1g0) + Pccn(r2x1g1);
+            l1 = Pccn(r1y0g0) + Pccn(r1y0g1);
+            l2 = Pccn(r1y1g0) + Pccn(r1y1g1);
+            l3 = Pccn(r2y0g0) + Pccn(r2y0g1);
+            l4 = Pccn(r2y1g0) + Pccn(r2y1g1);
             
             double R12 = g1+g2+g3+g4+m1+m2+m3+m4;
             double A0E0 = (g1+m1)/R12;
